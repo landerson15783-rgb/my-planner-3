@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="My Planner">
+<title>My Planner</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+:root {
+–gold: #FFD700;
+–gold-dim: rgba(255,215,0,0.15);
+–green: #2ecc71;
+–red: #e74c3c;
+–teal: #4ECDC4;
+–bg: #12121e;
+–bg2: #1a1a2e;
+–bg3: #16213e;
+–border: #2a2a4a;
+–text: #f0f0f0;
+–muted: #8888aa;
+–dim: #555;
+}
+
+body {
+font-family: Georgia, ‘Times New Roman’, serif;
+background: var(–bg);
+color: var(–text);
+min-height: 100vh;
+max-width: 480px;
+margin: 0 auto;
+padding-bottom: 80px;
+overflow-x: hidden;
+}
+
+/* ── HEADER ── */
+.header {
+background: linear-gradient(135deg, #1a1a2e, #0f3460);
+padding: 48px 20px 16px;
+border-bottom: 1px solid var(–border);
+}
+.header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.header-title { font-size: 22px; font-weight: bold; color: var(–gold); letter-spacing: 1px; }
+.header-pills { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+.pill {
+background: var(–gold-dim); border: 1px solid rgba(255,215,0,0.3);
+color: var(–gold); border-radius: 20px; padding: 3px 10px; font-size: 12px;
+font-family: Georgia, serif;
+}
+.header-sub { font-size: 13px; color: var(–muted); }
+
+/* ── TABS ── */
+.tabs {
+display: flex; background: #0d0d1a;
+border-bottom: 1px solid var(–border);
+position: sticky; top: 0; z-index: 50;
+}
+.tab-btn {
+flex: 1; padding: 12px 4px; border: none; background: transparent;
+cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 2px;
+border-bottom: 3px solid transparent; transition: all 0.2s;
+}
+.tab-btn.active { background: rgba(255,215,0,0.06); border-bottom-color: var(–gold); }
+.tab-icon { font-size: 20px; }
+.tab-label { font-size: 10px; color: var(–muted); letter-spacing: 0.5px; font-family: Georgia, serif; }
+.tab-btn.active .tab-label { color: var(–gold); }
+
+/* ── CONTENT ── */
+.content { padding: 16px; }
+.section-label {
+font-size: 11px; letter-spacing: 3px; color: var(–muted);
+margin-bottom: 12px; font-family: Georgia, serif;
+}
+.hint { font-size: 13px; color: var(–muted); line-height: 1.6; margin-bottom: 14px; }
+.hint-small { font-size: 12px; color: var(–dim); text-align: center; margin-top: 12px; font-style: italic; }
+.empty-state {
+text-align: center; color: var(–dim); font-size: 14px;
+padding: 32px 16px; font-style: italic;
+}
+
+/* ── TOP 3 ── */
+.top3-empty {
+background: var(–bg2); border-radius: 16px; padding: 28px 20px;
+text-align: center; border: 1px dashed #3a3a5a; margin-bottom: 8px;
+}
+.top3-empty-icon { font-size: 40px; margin-bottom: 8px; }
+.top3-empty-text { font-size: 16px; color: #ccc; margin-bottom: 4px; }
+.top3-empty-hint { font-size: 13px; color: var(–dim); margin-bottom: 16px; }
+.go-btn {
+background: var(–gold); color: var(–bg); border: none;
+border-radius: 10px; padding: 10px 20px; font-size: 14px;
+font-weight: bold; cursor: pointer; font-family: Georgia, serif;
+}
+.top3-card {
+display: flex; align-items: center; gap: 12px;
+background: linear-gradient(135deg, var(–bg2), var(–bg3));
+border-radius: 14px; padding: 14px; margin-bottom: 10px;
+border: 1px solid #2a3a5a;
+box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
+.top3-num {
+width: 32px; height: 32px; border-radius: 50%;
+background: var(–gold); color: var(–bg);
+display: flex; align-items: center; justify-content: center;
+font-size: 16px; font-weight: bold; flex-shrink: 0;
+}
+.top3-text { flex: 1; font-size: 16px; color: var(–text); line-height: 1.4; }
+.top3-actions { display: flex; gap: 6px; flex-shrink: 0; }
+.done-btn {
+display: flex; flex-direction: column; align-items: center;
+background: linear-gradient(135deg, #2ecc71, #27ae60);
+border: none; border-radius: 10px; padding: 8px 12px;
+cursor: pointer; color: #fff;
+box-shadow: 0 4px 12px rgba(46,204,113,0.4);
+font-family: Georgia, serif;
+}
+.done-tick { font-size: 18px; font-weight: bold; }
+.done-label { font-size: 9px; letter-spacing: 1px; margin-top: 1px; }
+.remove-btn {
+width: 32px; height: 32px; background: rgba(255,255,255,0.04);
+border: 1px solid #3a3a5a; border-radius: 8px; color: var(–dim);
+cursor: pointer; font-size: 13px;
+}
+.add-more-wrap { text-align: center; margin: 4px 0 8px; }
+.add-more-btn {
+background: transparent; border: 1px dashed #3a3a6a;
+color: var(–muted); border-radius: 10px; padding: 8px 16px;
+font-size: 13px; cursor: pointer; font-family: Georgia, serif;
+}
+
+/* ── BRAIN DUMP ── */
+.input-row { display: flex; gap: 8px; margin-bottom: 12px; }
+.task-input {
+flex: 1; padding: 13px 14px; font-size: 15px;
+border: 2px solid var(–border); border-radius: 12px;
+background: var(–bg2); color: var(–text);
+font-family: Georgia, serif; outline: none;
+-webkit-appearance: none;
+}
+.task-input:focus { border-color: var(–gold); }
+.add-btn {
+width: 48px; height: 48px; font-size: 26px; border: none;
+background: var(–gold); color: var(–bg); border-radius: 12px;
+cursor: pointer; font-weight: bold; flex-shrink: 0;
+display: flex; align-items: center; justify-content: center;
+}
+.task-row {
+display: flex; align-items: center; gap: 10px;
+background: var(–bg2); border-radius: 10px; padding: 12px 14px;
+margin-bottom: 7px; border: 1px solid var(–border);
+}
+.task-text { flex: 1; font-size: 15px; color: #ccc; line-height: 1.4; }
+.task-btns { display: flex; gap: 6px; }
+.pin-btn {
+width: 34px; height: 34px; background: rgba(255,215,0,0.1);
+border: 1px solid rgba(255,215,0,0.3); border-radius: 8px;
+color: var(–gold); cursor: pointer; font-size: 15px;
+}
+.pin-btn.pinned { background: rgba(255,215,0,0.3); border-color: var(–gold); }
+.pin-btn.pin-disabled { opacity: 0.3; cursor: not-allowed; }
+.trash-btn {
+width: 34px; height: 34px; background: rgba(231,76,60,0.1);
+border: 1px solid rgba(231,76,60,0.2); border-radius: 8px;
+color: var(–red); cursor: pointer; font-size: 13px;
+}
+
+/* ── VICTORIES ── */
+.victory-summary { text-align: center; padding: 20px 0 16px; border-bottom: 1px solid var(–border); margin-bottom: 16px; }
+.victory-big { font-size: 64px; font-weight: bold; color: var(–gold); line-height: 1; text-shadow: 0 0 30px rgba(255,215,0,0.5); }
+.victory-big-label { font-size: 14px; color: var(–muted); margin-top: 4px; }
+.victory-row {
+display: flex; align-items: center; gap: 12px;
+background: var(–bg2); border-radius: 10px; padding: 12px 14px;
+margin-bottom: 7px; border: 1px solid #2a3a2a;
+}
+.victory-check {
+width: 30px; height: 30px; border-radius: 50%;
+background: var(–green); color: #fff;
+display: flex; align-items: center; justify-content: center;
+font-size: 15px; font-weight: bold; flex-shrink: 0;
+}
+.victory-info { flex: 1; }
+.victory-task-text { font-size: 15px; color: #ccc; }
+.victory-date { font-size: 12px; color: var(–dim); margin-top: 2px; }
+
+/* ── PROGRESS ── */
+.stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+.stat-card { background: var(–bg2); border-radius: 12px; padding: 16px 12px; text-align: center; border: 1px solid var(–border); }
+.stat-num { font-size: 36px; font-weight: bold; color: var(–gold); }
+.stat-card-label { font-size: 12px; color: var(–muted); margin-top: 4px; }
+.chart-title { font-size: 12px; color: var(–muted); letter-spacing: 2px; margin-bottom: 10px; }
+.chart {
+display: flex; align-items: flex-end; gap: 4px;
+height: 120px; background: var(–bg2);
+border-radius: 12px; padding: 12px 8px 8px;
+border: 1px solid var(–border); margin-bottom: 16px;
+}
+.chart-col { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; }
+.bar-wrap { flex: 1; display: flex; align-items: flex-end; justify-content: center; width: 100%; }
+.bar { width: 70%; border-radius: 3px 3px 0 0; min-height: 4px; transition: height 0.3s; }
+.bar-count { font-size: 9px; color: var(–muted); margin-top: 2px; height: 12px; }
+.bar-date { font-size: 8px; color: var(–dim); margin-top: 1px; }
+.motive-line {
+background: linear-gradient(135deg, var(–bg2), #0f3460);
+border-radius: 12px; padding: 16px; font-size: 14px;
+color: var(–muted); line-height: 1.6; text-align: center;
+font-style: italic; border: 1px solid #2a3a5a;
+}
+
+/* ── BOTTOM NAV ── */
+.nav {
+position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+width: 100%; max-width: 480px;
+display: flex; background: #0d0d1a;
+border-top: 1px solid var(–border); z-index: 100;
+padding-bottom: env(safe-area-inset-bottom);
+}
+.nav-btn {
+flex: 1; padding: 10px 4px 10px; border: none;
+background: transparent; cursor: pointer;
+display: flex; flex-direction: column; align-items: center; gap: 2px;
+}
+.nav-btn.active { background: rgba(255,215,0,0.08); }
+.nav-icon { font-size: 20px; }
+.nav-label { font-size: 10px; color: var(–muted); letter-spacing: 0.5px; font-family: Georgia, serif; }
+.nav-btn.active .nav-label { color: var(–gold); }
+
+/* ── CELEBRATION ── */
+.overlay {
+position: fixed; inset: 0; background: rgba(0,0,0,0.88);
+display: flex; align-items: center; justify-content: center;
+z-index: 999; padding: 24px;
+}
+.celeb-box {
+background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+border: 2px solid var(–gold); border-radius: 24px; padding: 40px 28px;
+text-align: center; max-width: 340px; width: 100%;
+box-shadow: 0 0 60px rgba(255,215,0,0.4);
+animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+@keyframes popIn {
+from { transform: scale(0.5); opacity: 0; }
+to { transform: scale(1); opacity: 1; }
+}
+.celeb-emoji { font-size: 80px; margin-bottom: 8px; display: block; animation: bounce 0.6s ease infinite alternate; }
+@keyframes bounce { from { transform: translateY(0); } to { transform: translateY(-10px); } }
+.celeb-title { font-size: 34px; font-weight: bold; color: var(–gold); letter-spacing: 4px; margin-bottom: 12px; text-shadow: 0 0 20px rgba(255,215,0,0.8); }
+.celeb-task { font-size: 15px; color: #bbb; font-style: italic; margin-bottom: 14px; line-height: 1.5; }
+.celeb-msg { font-size: 18px; color: #fff; margin-bottom: 14px; font-weight: bold; }
+.celeb-total { font-size: 15px; color: var(–teal); margin-bottom: 6px; }
+.celeb-streak { font-size: 15px; color: #FF6B6B; font-weight: bold; margin-bottom: 20px; }
+.celeb-close {
+background: var(–gold); color: var(–bg); border: none;
+border-radius: 12px; padding: 12px 32px; font-size: 16px;
+font-weight: bold; cursor: pointer; font-family: Georgia, serif;
+}
+
+/* ── CONFETTI ── */
+#confetti-canvas {
+position: fixed; inset: 0; pointer-events: none; z-index: 998;
+}
+
+.hidden { display: none !important; }
+</style>
+
+</head>
+<body>
+
+<canvas id="confetti-canvas"></canvas>
+
+<!-- CELEBRATION OVERLAY -->
+
+<div class="overlay hidden" id="overlay">
+  <div class="celeb-box">
+    <span class="celeb-emoji" id="celeb-emoji">🏆</span>
+    <div class="celeb-title" id="celeb-title">CHAMPION!</div>
+    <div class="celeb-task" id="celeb-task"></div>
+    <div class="celeb-msg" id="celeb-msg"></div>
+    <div class="celeb-total" id="celeb-total"></div>
+    <div class="celeb-streak hidden" id="celeb-streak"></div>
+    <button class="celeb-close" onclick="closeCelebration()">Amazing! ✓</button>
+  </div>
+</div>
+
+<!-- HEADER -->
+
+<div class="header">
+  <div class="header-top">
+    <div class="header-title">My Daily Planner</div>
+    <div class="header-pills">
+      <span class="pill" id="today-pill">Today: 0 ✓</span>
+      <span class="pill hidden" id="streak-pill">🔥 0d</span>
+    </div>
+  </div>
+  <div class="header-sub">You've got this. One task at a time 💙</div>
+</div>
+
+<!-- TABS -->
+
+<div class="tabs">
+  <button class="tab-btn active" onclick="switchTab(0)">
+    <span class="tab-icon">⭐</span><span class="tab-label">Top 3</span>
+  </button>
+  <button class="tab-btn" onclick="switchTab(1)">
+    <span class="tab-icon">🧠</span><span class="tab-label">Brain Dump</span>
+  </button>
+  <button class="tab-btn" onclick="switchTab(2)">
+    <span class="tab-icon">🏆</span><span class="tab-label">Victories</span>
+  </button>
+  <button class="tab-btn" onclick="switchTab(3)">
+    <span class="tab-icon">📈</span><span class="tab-label">Progress</span>
+  </button>
+</div>
+
+<!-- TAB 0: TOP 3 -->
+
+<div id="tab-0" class="content">
+  <div class="section-label">TODAY'S FOCUS</div>
+  <div id="top3-empty" class="top3-empty hidden">
+    <div class="top3-empty-icon">🎯</div>
+    <div class="top3-empty-text">No focus tasks yet</div>
+    <div class="top3-empty-hint">Go to Brain Dump → tap ⭐ on a task</div>
+    <button class="go-btn" onclick="switchTab(1)">Open Brain Dump →</button>
+  </div>
+  <div id="top3-list"></div>
+  <div class="add-more-wrap">
+    <button class="add-more-btn hidden" id="add-more-btn" onclick="switchTab(1)"></button>
+  </div>
+</div>
+
+<!-- TAB 1: BRAIN DUMP -->
+
+<div id="tab-1" class="content hidden">
+  <div class="section-label">BRAIN DUMP — get it all out</div>
+  <p class="hint">Don't filter, don't organise. Just type everything that's in your head.</p>
+  <div class="input-row">
+    <input class="task-input" id="task-input" type="text" placeholder="Type a task and press Enter..." />
+    <button class="add-btn" onclick="addTask()">+</button>
+  </div>
+  <div id="task-list"></div>
+  <div class="hint-small hidden" id="pin-hint">Tap ⭐ to move a task to your Top 3 focus</div>
+</div>
+
+<!-- TAB 2: VICTORIES -->
+
+<div id="tab-2" class="content hidden">
+  <div class="section-label">YOUR VICTORIES 🏆</div>
+  <div class="victory-summary">
+    <div class="victory-big" id="victory-count">0</div>
+    <div class="victory-big-label">total tasks completed</div>
+  </div>
+  <div id="victory-list"></div>
+  <div class="empty-state hidden" id="victory-empty">Complete a Top 3 task to earn your first victory!</div>
+</div>
+
+<!-- TAB 3: PROGRESS -->
+
+<div id="tab-3" class="content hidden">
+  <div class="section-label">YOUR PROGRESS 📈</div>
+  <div class="stats-grid">
+    <div class="stat-card"><div class="stat-num" id="stat-total">0</div><div class="stat-card-label">All-time wins</div></div>
+    <div class="stat-card"><div class="stat-num" id="stat-today">0</div><div class="stat-card-label">Today</div></div>
+    <div class="stat-card"><div class="stat-num" id="stat-streak">0</div><div class="stat-card-label">Day streak 🔥</div></div>
+    <div class="stat-card"><div class="stat-num" id="stat-days">0</div><div class="stat-card-label">Active days</div></div>
+  </div>
+  <div class="chart-title">LAST 14 DAYS</div>
+  <div class="chart" id="chart"></div>
+  <div class="motive-line" id="motive-line" style="display:none"></div>
+</div>
+
+<!-- BOTTOM NAV -->
+
+<div class="nav">
+  <button class="nav-btn active" onclick="switchTab(0)">
+    <span class="nav-icon">⭐</span><span class="nav-label">Top 3</span>
+  </button>
+  <button class="nav-btn" onclick="switchTab(1)">
+    <span class="nav-icon">🧠</span><span class="nav-label">Brain Dump</span>
+  </button>
+  <button class="nav-btn" onclick="switchTab(2)">
+    <span class="nav-icon">🏆</span><span class="nav-label">Victories</span>
+  </button>
+  <button class="nav-btn" onclick="switchTab(3)">
+    <span class="nav-icon">📈</span><span class="nav-label">Progress</span>
+  </button>
+</div>
+
+<script>
+// ── STATE ────────────────────────────────────────────────────────
+let tasks = [];
+let top3 = [];
+let victories = [];
+let stats = { total: 0, days: {} };
+let currentTab = 0;
+let confettiFrame = null;
+
+// ── STORAGE ──────────────────────────────────────────────────────
+function loadAll() {
+  try { tasks = JSON.parse(localStorage.getItem('bd_tasks') || '[]'); } catch { tasks = []; }
+  try { top3 = JSON.parse(localStorage.getItem('bd_top3') || '[]'); } catch { top3 = []; }
+  try { victories = JSON.parse(localStorage.getItem('bd_victories') || '[]'); } catch { victories = []; }
+  try { stats = JSON.parse(localStorage.getItem('bd_stats') || '{"total":0,"days":{}}'); } catch { stats = { total: 0, days: {} }; }
+}
+function saveAll() {
+  localStorage.setItem('bd_tasks', JSON.stringify(tasks));
+  localStorage.setItem('bd_top3', JSON.stringify(top3));
+  localStorage.setItem('bd_victories', JSON.stringify(victories));
+  localStorage.setItem('bd_stats', JSON.stringify(stats));
+}
+
+// ── HELPERS ───────────────────────────────────────────────────────
+function todayKey() { return new Date().toISOString().split('T')[0]; }
+function todayLabel() {
+  return new Date().toLocaleDateString('en-GB', { weekday:'short', day:'numeric', month:'short', year:'numeric' });
+}
+function getStreak() {
+  let streak = 0;
+  const d = new Date();
+  while (true) {
+    const k = d.toISOString().split('T')[0];
+    if (stats.days[k]) { streak++; d.setDate(d.getDate() - 1); }
+    else break;
+  }
+  return streak;
+}
+
+// ── TABS ──────────────────────────────────────────────────────────
+function switchTab(i) {
+  currentTab = i;
+  document.querySelectorAll('.content').forEach((el, idx) => el.classList.toggle('hidden', idx !== i));
+  document.querySelectorAll('.tab-btn').forEach((el, idx) => el.classList.toggle('active', idx === i));
+  document.querySelectorAll('.nav-btn').forEach((el, idx) => el.classList.toggle('active', idx === i));
+  renderAll();
+}
+
+// ── RENDER ────────────────────────────────────────────────────────
+function renderAll() {
+  renderHeader();
+  renderTop3();
+  renderBrainDump();
+  renderVictories();
+  renderProgress();
+}
+
+function renderHeader() {
+  const tc = (stats.days[todayKey()] || 0);
+  const streak = getStreak();
+  document.getElementById('today-pill').textContent = `Today: ${tc} ✓`;
+  const sp = document.getElementById('streak-pill');
+  if (streak > 0) { sp.classList.remove('hidden'); sp.textContent = `🔥 ${streak}d`; }
+  else sp.classList.add('hidden');
+}
+
+function renderTop3() {
+  const list = document.getElementById('top3-list');
+  const empty = document.getElementById('top3-empty');
+  const addMore = document.getElementById('add-more-btn');
+  list.innerHTML = '';
+  if (top3.length === 0) { empty.classList.remove('hidden'); }
+  else { empty.classList.add('hidden'); }
+  top3.forEach((task, i) => {
+    const div = document.createElement('div');
+    div.className = 'top3-card';
+    div.innerHTML = `
+      <div class="top3-num">${i+1}</div>
+      <div class="top3-text">${escHtml(task.text)}</div>
+      <div class="top3-actions">
+        <button class="done-btn" onclick="completeTask('${task.id}')">
+          <span class="done-tick">✓</span>
+          <span class="done-label">DONE!</span>
+        </button>
+        <button class="remove-btn" onclick="removeTop3('${task.id}')">✕</button>
+      </div>`;
+    list.appendChild(div);
+  });
+  if (top3.length > 0 && top3.length < 3) {
+    addMore.classList.remove('hidden');
+    addMore.textContent = `+ Add ${3 - top3.length} more from Brain Dump`;
+  } else { addMore.classList.add('hidden'); }
+}
+
+function renderBrainDump() {
+  const list = document.getElementById('task-list');
+  const hint = document.getElementById('pin-hint');
+  list.innerHTML = '';
+  if (tasks.length === 0) {
+    list.innerHTML = '<div class="empty-state">Nothing here yet. Start typing above — anything at all!</div>';
+    hint.classList.add('hidden');
+    return;
+  }
+  const top3Ids = top3.map(t => t.id);
+  tasks.forEach(task => {
+    const isPinned = top3Ids.includes(task.id);
+    const isDisabled = !isPinned && top3.length >= 3;
+    const div = document.createElement('div');
+    div.className = 'task-row';
+    div.innerHTML = `
+      <span class="task-text">${escHtml(task.text)}</span>
+      <div class="task-btns">
+        <button class="pin-btn ${isPinned ? 'pinned' : ''} ${isDisabled ? 'pin-disabled' : ''}"
+          onclick="${isDisabled ? '' : `pinTask('${task.id}')`}" title="Add to Top 3">⭐</button>
+        <button class="trash-btn" onclick="deleteTask('${task.id}')">✕</button>
+      </div>`;
+    list.appendChild(div);
+  });
+  if (top3.length < 3) hint.classList.remove('hidden');
+  else hint.classList.add('hidden');
+}
+
+function renderVictories() {
+  const list = document.getElementById('victory-list');
+  const empty = document.getElementById('victory-empty');
+  const count = document.getElementById('victory-count');
+  count.textContent = stats.total || 0;
+  list.innerHTML = '';
+  if (victories.length === 0) { empty.classList.remove('hidden'); return; }
+  empty.classList.add('hidden');
+  victories.forEach(v => {
+    const div = document.createElement('div');
+    div.className = 'victory-row';
+    div.innerHTML = `
+      <div class="victory-check">✓</div>
+      <div class="victory-info">
+        <div class="victory-task-text">${escHtml(v.text)}</div>
+        <div class="victory-date">${v.date}</div>
+      </div>
+      <button class="trash-btn" onclick="deleteVictory('${v.id}')">✕</button>`;
+    list.appendChild(div);
+  });
+}
+
+function renderProgress() {
+  const streak = getStreak();
+  const tc = stats.days[todayKey()] || 0;
+  document.getElementById('stat-total').textContent = stats.total || 0;
+  document.getElementById('stat-today').textContent = tc;
+  document.getElementById('stat-streak').textContent = streak;
+  document.getElementById('stat-days').textContent = Object.keys(stats.days).length;
+
+  // 14-day chart
+  const chart = document.getElementById('chart');
+  chart.innerHTML = '';
+  const days14 = [];
+  for (let i = 13; i >= 0; i--) {
+    const d = new Date(); d.setDate(d.getDate() - i);
+    const k = d.toISOString().split('T')[0];
+    const lbl = d.toLocaleDateString('en-GB', { day:'numeric', month:'short' });
+    days14.push({ key: k, label: lbl.split(' ')[0], count: stats.days[k] || 0 });
+  }
+  const max = Math.max(...days14.map(d => d.count), 1);
+  const today = todayKey();
+  days14.forEach(d => {
+    const col = document.createElement('div');
+    col.className = 'chart-col';
+    const h = d.count ? Math.max(8, (d.count / max) * 80) : 4;
+    const color = d.key === today ? '#FFD700' : d.count ? '#4ECDC4' : '#2a2a3a';
+    col.innerHTML = `
+      <div class="bar-wrap"><div class="bar" style="height:${h}px;background:${color}"></div></div>
+      <div class="bar-count">${d.count || ''}</div>
+      <div class="bar-date">${d.label}</div>`;
+    chart.appendChild(col);
+  });
+
+  const ml = document.getElementById('motive-line');
+  if ((stats.total || 0) > 0) {
+    ml.style.display = '';
+    ml.textContent = `Every single one of those ${stats.total} wins was real. Your brain worked hard for each one. 💙`;
+  } else { ml.style.display = 'none'; }
+}
+
+// ── ACTIONS ───────────────────────────────────────────────────────
+function addTask() {
+  const input = document.getElementById('task-input');
+  const text = input.value.trim();
+  if (!text) return;
+  tasks.push({ id: Date.now().toString(), text });
+  input.value = '';
+  saveAll(); renderAll();
+  input.focus();
+}
+
+function pinTask(id) {
+  if (top3.length >= 3) return;
+  if (top3.find(t => t.id === id)) return;
+  const task = tasks.find(t => t.id === id);
+  if (task) { top3.push(task); saveAll(); renderAll(); }
+}
+
+function removeTop3(id) {
+  top3 = top3.filter(t => t.id !== id);
+  saveAll(); renderAll();
+}
+
+function deleteTask(id) {
+  tasks = tasks.filter(t => t.id !== id);
+  top3 = top3.filter(t => t.id !== id);
+  saveAll(); renderAll();
+}
+
+function deleteVictory(id) {
+  victories = victories.filter(v => v.id !== id);
+  saveAll(); renderAll();
+}
+
+function completeTask(id) {
+  const task = top3.find(t => t.id === id);
+  if (!task) return;
+  top3 = top3.filter(t => t.id !== id);
+  tasks = tasks.filter(t => t.id !== id);
+  const today = todayKey();
+  victories.unshift({ id: Date.now().toString(), text: task.text, date: todayLabel(), day: today });
+  stats.total = (stats.total || 0) + 1;
+  stats.days[today] = (stats.days[today] || 0) + 1;
+  saveAll(); renderAll();
+  showCelebration(task.text);
+}
+
+// ── CELEBRATION ───────────────────────────────────────────────────
+const CELEBRATIONS = [
+  { emoji:'🏆', title:'CHAMPION!', msg:'You absolute legend. That\'s done!' },
+  { emoji:'🚀', title:'LAUNCHED!', msg:'Off the charts. You nailed it!' },
+  { emoji:'⚡', title:'SUPERSTAR!', msg:'Lightning fast. Look at you go!' },
+  { emoji:'🎯', title:'BULLSEYE!', msg:'Spot on. Perfect execution!' },
+  { emoji:'🌟', title:'BRILLIANT!', msg:'Shining bright. You\'re unstoppable!' },
+  { emoji:'💪', title:'CRUSHED IT!', msg:'Pure strength. Every step counts!' },
+  { emoji:'🔥', title:'ON FIRE!', msg:'Nothing can stop you today!' },
+  { emoji:'🎊', title:'VICTORY!', msg:'Pop the confetti — you earned it!' },
+  { emoji:'👑', title:'ROYALTY!', msg:'Crown on. You rule this day!' },
+  { emoji:'💎', title:'DIAMOND!', msg:'Precious and irreplaceable — just like this win!' },
+];
+
+function showCelebration(taskText) {
+  const cel = CELEBRATIONS[Math.floor(Math.random() * CELEBRATIONS.length)];
+  const streak = getStreak();
+  document.getElementById('celeb-emoji').textContent = cel.emoji;
+  document.getElementById('celeb-title').textContent = cel.title;
+  document.getElementById('celeb-task').textContent = `"${taskText}"`;
+  document.getElementById('celeb-msg').textContent = cel.msg;
+  document.getElementById('celeb-total').textContent = `🏆 ${stats.total} total wins`;
+  const cs = document.getElementById('celeb-streak');
+  if (streak > 1) { cs.classList.remove('hidden'); cs.textContent = `🔥 ${streak} day streak!`; }
+  else cs.classList.add('hidden');
+  document.getElementById('overlay').classList.remove('hidden');
+  startConfetti();
+}
+
+function closeCelebration() {
+  document.getElementById('overlay').classList.add('hidden');
+  stopConfetti();
+}
+
+// ── CONFETTI ──────────────────────────────────────────────────────
+function startConfetti() {
+  const canvas = document.getElementById('confetti-canvas');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  const ctx = canvas.getContext('2d');
+  const colors = ['#FFD700','#FF6B6B','#4ECDC4','#45B7D1','#96CEB4','#FFEAA7','#DDA0DD','#98FB98','#FF8C00','#00CED1'];
+  const pieces = Array.from({ length: 200 }, () => ({
+    x: Math.random() * canvas.width,
+    y: Math.random() * -canvas.height,
+    w: Math.random() * 14 + 6,
+    h: Math.random() * 6 + 4,
+    color: colors[Math.floor(Math.random() * colors.length)],
+    rot: Math.random() * Math.PI * 2,
+    vx: (Math.random() - 0.5) * 4,
+    vy: Math.random() * 5 + 2,
+    vr: (Math.random() - 0.5) * 0.2,
+  }));
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    pieces.forEach(p => {
+      ctx.save();
+      ctx.translate(p.x + p.w/2, p.y + p.h/2);
+      ctx.rotate(p.rot);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
+      ctx.restore();
+      p.x += p.vx; p.y += p.vy; p.rot += p.vr;
+      if (p.y > canvas.height) { p.y = -20; p.x = Math.random() * canvas.width; }
+    });
+    confettiFrame = requestAnimationFrame(draw);
+  }
+  if (confettiFrame) cancelAnimationFrame(confettiFrame);
+  draw();
+}
+
+function stopConfetti() {
+  if (confettiFrame) { cancelAnimationFrame(confettiFrame); confettiFrame = null; }
+  const canvas = document.getElementById('confetti-canvas');
+  canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+}
+
+// ── UTILS ─────────────────────────────────────────────────────────
+function escHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── KEYBOARD ─────────────────────────────────────────────────────
+document.getElementById('task-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') addTask();
+});
+
+// ── INIT ──────────────────────────────────────────────────────────
+loadAll();
+renderAll();
+</script>
+
+</body>
+</html>
